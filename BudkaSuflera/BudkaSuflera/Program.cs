@@ -9,22 +9,97 @@ namespace BudkaSuflera
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            //Console.Out.WriteLine(IsSpace(' '));
-
-            CorrectCugowski("JOLKA JOLKA PAMIETASZ LATO ZE SNOW\nJOLKA ZE SNOW");
+            CorrectCugowski();
 
             Console.In.ReadLine();
         }
 
-
-        static void CorrectCugowski(string input)
+        static void CorrectCugowski()
         {
-            string[] inputArr = input.Split('\n');
+            string original = "PA JOLKA PAMIETASZ LATO ZE SNOW";
+            string attempt = "PAMIETASZ ZE SNOW";
 
-            Dictionary<string, int> originalDict = GetDictionaryFromString(inputArr[0]);
-            Dictionary<string, int> attemptDict = GetDictionaryFromString(inputArr[1]);
+            int counter = 0;
+            int originalWordBeginning = 0;
+            int attemptWordBeginning = 0;
+            int j = 0;
+            bool wrongWord = false;
+
+            SortedList<string, int> missed = new SortedList<string, int>();
+
+            for (int i = 0; i < original.Length; i++)
+            {
+                if (!wrongWord)
+                {
+                    if (original[i] == (j < attempt.Length ? attempt[j] : '.'))
+                    {
+                        j++;
+                    }
+                    else
+                    {
+                        //string debugString = j < attempt.Length ? attempt[j].ToString() : ".";
+                        //Console.Out.WriteLine(original[i].ToString() + " - " + debugString);
+
+                        wrongWord = true;
+                        j = attemptWordBeginning;
+                    }
+                }
+                if (original[i] == ' ' || i == original.Length - 1)
+                {
+                    if (wrongWord)
+                    {
+                        int wordLength = i - originalWordBeginning;
+                        if (i == original.Length - 1)
+                        {
+                            wordLength++;
+                        }
+
+                        string wordToAdd = original.Substring(originalWordBeginning, wordLength);
+                        if (missed.ContainsKey(wordToAdd))
+                        {
+                            missed[wordToAdd]++;
+                        }
+                        else
+                        {
+                            missed.Add(wordToAdd, 1);
+                        }
+                        counter++;
+
+                        wrongWord = false;
+                    }
+                    else if (attempt[j] == ' ')
+                    {
+                        j++;
+                        attemptWordBeginning = j;
+                    }
+
+                    originalWordBeginning = i + 1;
+                }
+            }
+
+            Console.Out.WriteLine(counter);
+            foreach (KeyValuePair<string, int> pair in missed)
+            {
+                for (int i = 0; i < pair.Value; i++)
+                {
+                    Console.Out.WriteLine(pair.Key);
+                }
+            }
+        }
+
+
+
+
+
+        static void CorrectCugowskiOld()
+        {
+            string input0 = "JOLKA JOLKA PAMIETASZ LATO ZE SNOW";
+            string input1 = "PAMIETASZ ZE SNOW";
+
+            Dictionary<string, int> originalDict = GetDictionaryFromString(input0);
+            Dictionary<string, int> attemptDict = GetDictionaryFromString(input1);
 
             List<string> differenceList = new List<string>();
 
@@ -32,8 +107,8 @@ namespace BudkaSuflera
             {
                 if (!attemptDict.ContainsKey(orPair.Key) || attemptDict[orPair.Key] != orPair.Value)
                 {
-                    int numberOfWords = attemptDict.ContainsKey(orPair.Key)? orPair.Value - attemptDict[orPair.Key] : orPair.Value;
-                    for (int i = 0; i < numberOfWords; i++)
+                    int numberOfOccurencies = attemptDict.ContainsKey(orPair.Key) ? orPair.Value - attemptDict[orPair.Key] : orPair.Value;
+                    for (int i = 0; i < numberOfOccurencies; i++)
                     {
                         differenceList.Add(orPair.Key);
                     }
@@ -76,63 +151,56 @@ namespace BudkaSuflera
         {
             return new Regex(@"^ $").IsMatch(ch.ToString());
         }
-    }
-}
 
-/*
-using System;
-using System.Collections.Generic;
 
-public class Test
-{
-    public static void Main()
-    {
-        Dictionary<string, int> originalDict = GetDictionaryFromString(Console.In.ReadLine());
-        Dictionary<string, int> attemptDict = GetDictionaryFromString(Console.In.ReadLine());
 
-        List<string> differenceList = new List<string>();
 
-        foreach (KeyValuePair<string, int> orPair in originalDict)
+        static void DamianVsCugowski()
         {
-            if (!attemptDict.ContainsKey(orPair.Key) || attemptDict[orPair.Key] != orPair.Value)
+            Tuple<Dictionary<string, int>, int> originalInput = GetDictionaryAndCountFromString(
+                Console.In.ReadLine()
+            );
+
+            Tuple<Dictionary<string, int>, int> attemptInput = GetDictionaryAndCountFromString(
+                Console.In.ReadLine()
+            );
+
+            Dictionary<string, int> originalDict = originalInput.Item1;
+            Dictionary<string, int> attemptDict = attemptInput.Item1;
+            foreach (KeyValuePair<string, int> pair in attemptDict)
             {
-                int numberOfWords = attemptDict.ContainsKey(orPair.Key) ? orPair.Value - attemptDict[orPair.Key] : orPair.Value;
-                for (int i = 0; i < numberOfWords; i++)
+                int count = originalDict[pair.Key];
+                int missingWords = count - pair.Value;
+                originalDict[pair.Key] = missingWords;
+            }
+
+            SortedList<string, int> result = new SortedList<string, int>(originalDict.Count);
+            foreach (KeyValuePair<string, int> pair in originalDict)
+            {
+                result[pair.Key] = pair.Value;
+            }
+
+            Console.Out.WriteLine(originalInput.Item2 - attemptInput.Item2);
+            foreach (KeyValuePair<string, int> pair in result)
+            {
+                for (int i = 0; i < pair.Value; i++)
                 {
-                    differenceList.Add(orPair.Key);
+                    Console.Out.WriteLine(pair.Key);
                 }
             }
         }
-
-        differenceList.Sort();
-
-        Console.Out.WriteLine(differenceList.Count);
-
-        foreach (string el in differenceList)
+        static Tuple<Dictionary<string, int>, int> GetDictionaryAndCountFromString(string s)
         {
-            Console.Out.WriteLine(el);
-        }
-    }
-
-
-    static Dictionary<string, int> GetDictionaryFromString(string s)
-    {
-        Dictionary<string, int> dict = new Dictionary<string, int>();
-
-        foreach (string word in s.Split(' '))
-        {
-            if (!dict.ContainsKey(word))
+            Dictionary<string, int> dict = new Dictionary<string, int>();
+            int count = 0;
+            foreach (string word in s.Split(' '))
             {
-                dict.Add(word, 1);
+                count++;
+                int value;
+                int presentOnList = dict.TryGetValue(word, out value) ? value + 1 : 1;
+                dict[word] = presentOnList;
             }
-            else
-            {
-                dict[word] += 1;
-            }
+            return Tuple.Create(dict, count);
         }
-
-        return dict;
     }
 }
-
-*/
