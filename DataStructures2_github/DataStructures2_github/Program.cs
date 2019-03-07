@@ -5,30 +5,59 @@ using System.Threading.Tasks;
 
 namespace DataStructures2_github
 {
-    abstract class List<T, U> // jesli Fold ma przyjac funkcje o dwoch parametrach to List musi byc o dwoch parametrach
+    abstract class List<T>
     {
-        public abstract List<T, U> Next();
+        public abstract List<T> Next();
 
-        public abstract List<T, T> Map(Func<T, T> f);
+        public abstract List<U> Map<U>(Func<T, U> f);
 
-        public abstract U Fold(Func<T, U, U> f, U ident); // tak sobie wyobrazam sygnature
+        public abstract List<U> FlatMap<U>(Func<T, List<U>> f);
+
+        public abstract U Fold<U>(Func<T, U, U> f, U ident);
+
+        public abstract void Add(T el);
+
+        public abstract void RemoveAt(int index);
+
+        public abstract T FindFirst(Func<T, bool> f);
+
+        public abstract List<T> Filter(Func<T, bool> f);
     }
 
-    class EmptyList<T, U> : List<T, U> // wszedzie gdzie sie nie kompilowalo dodalem drugi parametr
+    class EmptyList<T> : List<T>
     {
-        public override List<T, U> Next()
+        public override List<T> Next()
         {
             return null;
         }
 
-        public override List<T, T> Map(Func<T, T> f)
+        public override List<U> Map<U>(Func<T, U> f)
         {
-            return new EmptyList<T, T>();
+            return new EmptyList<U>();
         }
 
-        public override U Fold(Func<T, U, U> f, U ident)
+        public override List<U> FlatMap<U>(Func<T, List<U>> f)
+        {
+            return new EmptyList<U>();
+        }
+
+        public override U Fold<U>(Func<T, U, U> f, U ident)
         {
             return ident;
+        }
+
+        public override void Add(T el) { }   // ??? potrzebowalbym zmienic przypisanie z EmptyList na new ListNode<T>(el, new EmptyList<T>()) ale jak ???
+
+        public override void RemoveAt(int index) { }
+
+        public override T FindFirst(Func<T, bool> f)
+        {
+            return default(T);
+        }
+
+        public override List<T> Filter(Func<T, bool> f)
+        {
+            return new EmptyList<T>();
         }
 
         public override string ToString()
@@ -37,36 +66,72 @@ namespace DataStructures2_github
         }
     }
 
-    class ListNode<T, U> : List<T, U>
+    class ListNode<T> : List<T>
     {
-        public T Head { get; }
-        public List<T, U> Tail { get; }
+        public T Head { get; private set; }
+        public List<T> Tail { get; }
 
-        public ListNode(T head, List<T, U> tail)
+        public ListNode(T head, List<T> tail)
         {
             this.Head = head;
             this.Tail = tail;
         }
 
-        public override List<T, U> Next()
+        public override List<T> Next()
         {
             return Tail;
         }
 
-        public override List<T, T> Map(Func<T, T> f)
+        public override List<U> Map<U>(Func<T, U> f)
         {
-            //return new ListNode<T, U>(f(Head), Tail.Map(f));   to jest stara metoda Map
+            //return new ListNode<U>(f(Head), Tail.Map(f));
 
-            // i tutaj najwazniejsze, proba zrobienia Map przez Fold. Wydaje mi sie ze jest dosyc dobrze ale nie wiem co wstawic jako Tail nowego ListNode
-            // chociaz caly czas nie podoba mi sie to ze List<T,U>.Map(f) zwraca List<T,T> czyli obiekt o innych typach generycznych.
-            return this.Fold((x, y) => new ListNode<T, T>(f(x), y), new EmptyList<T, U>().Map(f));
+            return this.Fold<List<U>>((x, y) => new ListNode<U>(f(x), y), new EmptyList<U>());
+            //return this.Fold((x, y) => new ListNode<T>(f(x), y), new EmptyList<U>().Map(f));
         }
 
-        public override U Fold(Func<T, U, U> f, U ident)
+        public override List<U> FlatMap<U>(Func<T, List<U>> f)
+        {
+            return f(Head);
+        }
+
+        public override U Fold<U>(Func<T, U, U> f, U ident)
         {
             //return f(ident, Tail.Fold(f, Head));   to jest FoldRight
 
             return f(Head, Tail.Fold(f, ident));
+        }
+
+        public override void Add(T el)
+        {
+            Tail.Add(el);
+        }
+
+        public override void RemoveAt(int index)
+        {
+            if (index == 0)
+            {
+                // ??? znowu jak zrobic this = this.Tail ???
+            }
+            else
+            {
+                Tail.RemoveAt(index - 1);
+            }
+        }
+
+        public override T FindFirst(Func<T, bool> f)
+        {
+            return f(Head) ? Head : Tail.FindFirst(f);
+        }
+
+        public override List<T> Filter(Func<T, bool> f)
+        {
+            /*List<T> filtered;
+            if (f(Head))
+            {
+                
+            }*/
+            return new ListNode<T>(Head, Tail);
         }
 
         public override string ToString()
@@ -86,18 +151,20 @@ namespace DataStructures2_github
 
         static void Lesson1()
         {
-            // no i tutaj, kombinowalem zeby ten Fold przyjmowal funkcje o dwoch parametrach ale co wtedy ma zwracac?
 
-            List<int, List<int, int>> list = new ListNode<int, List<int, int>>(0, new ListNode<int, List<int, int>>(1,
-                new ListNode<int, List<int, int>>(2, new ListNode<int, List<int, int>>(3, new ListNode<int, List<int, int>>(4,
-                new EmptyList<int, List<int, int>>())))));
+            List<int> list = new ListNode<int>(0, new ListNode<int>(1, new ListNode<int>(2, new ListNode<int>(3, new ListNode<int>(4, new EmptyList<int>())))));
             Console.Out.WriteLine(list);
 
-            //List<int, int> mapResult = list.Map(x => x + 1);
-            //Console.Out.WriteLine(mapResult);
+            List<int> mapResult = list.Map(x => x + 2);
+            Console.Out.WriteLine(mapResult);
 
-            List<int, int> foldResult = list.Fold((x, y) => new ListNode<int, int>(x + 1, y), new EmptyList<int, int>());
+            //List<int> flatMapResult = list.FlatMap(x => new ListNode<>())   ??? jak uzyc takiego FlatMap ???
+
+            int foldResult = mapResult.Fold((x, y) => x * y, 1);
             Console.Out.WriteLine(foldResult);
+
+            int findFirstResult = list.FindFirst(x => x == 2);
+            Console.Out.WriteLine(findFirstResult);
         }
     }
 }
