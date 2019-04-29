@@ -11,9 +11,13 @@ void zadanie1_2();
 void zadanie1_3();
 void zadanie1_4();
 void zadanie1_5();
+bool isBiggest(int, int, int);
 void zadanie1_6();
+float readFloatWithMessage(char[]);
+char readCharWithMessage(char[]);
 
 void zadanie2_1();
+void zadanie2_1A();
 void zadanie2_2();
 void zadanie2_3();
 void zadanie2_4();
@@ -30,6 +34,7 @@ int Multiply(int, int);
 
 int main()
 {
+	zadanie2_2();
 	//// 3.1.
 	//NewLine();
 
@@ -67,15 +72,16 @@ void zadanie1_1()
 void zadanie1_2()
 {
 	int myVariable = 1;
-	printf("%d", myVariable);
+	printf("%d Damian", myVariable);
 }
 
 /* 1.3. Pobraæ od u¿ytkownika liczbê x. Wyœwietliæ kwadrat liczby x. */
 void zadanie1_3()
 {
-	int x;
+	int x, x2;
 	cin >> x;
-	cout << x * x;
+	x2 = x * x;
+	cout << x2;
 }
 
 /* 1.4. Zapoznaæ siê z instrukcjami warunkowymi (if, else if, else oraz switch). Pobraæ od u¿ywkownika liczbê i wyœwietliæ informacjê, czy jest
@@ -96,10 +102,15 @@ void zadanie1_5()
 	int x1, x2, x3;
 	cin >> x1 >> x2 >> x3;
 
-	if (x1 > x2 && x1 > x3) cout << x1 << " jest najwieksza";
-	else if (x2 > x1 && x2 > x3) cout << x2 << " jest najwieksza";
-	else if (x3 > x1 && x3 > x2) cout << x3 << " jest najwieksza";
+	if (isBiggest(x1, x2, x3)) cout << x1 << " jest najwieksza";  // TODO wydzielic funkcje
+	else if (isBiggest(x2, x1, x3)) cout << x2 << " jest najwieksza";
+	else if (isBiggest(x3, x1, x2)) cout << x3 << " jest najwieksza";
 	else cout << "Brak liczby najwiekszej";
+}
+
+bool isBiggest(int value, int x1, int x2)
+{
+	return value > x1 && value > x2;
 }
 
 /* 1.6. Napisaæ prosty kalkulator. Nale¿y pobraæ od u¿ytkownika 2 liczby oraz operator (jeden z czterech: mno¿enie, dzielenie, dodawanie,
@@ -109,13 +120,13 @@ void zadanie1_6()
 {
 	float x1, x2;
 	char op;
+	char msgX1[] = "Podaj pierwsza liczbe: ";
+	char msgOp[] = "Podaj operator: ";
+	char msgX2[] = "Podaj druga liczbe: ";
 
-	cout << "Podaj pierwsza liczbe: ";
-	cin >> x1;
-	cout << "Podaj operator: ";
-	cin >> op;
-	cout << "Podaj druga liczbe: ";
-	cin >> x2;
+	x1 = readFloatWithMessage(msgX1);  // TODO wydzielic funkcje ReadFloatWithMessage
+	op = readCharWithMessage(msgOp);
+	x2 = readFloatWithMessage(msgX2);
 
 	switch (op)
 	{
@@ -129,11 +140,27 @@ void zadanie1_6()
 		cout << x1 * x2;
 		break;
 	case '/':
-		if (x2 == 0) cout << "Pamietaj cholero, nie dziel przez zero!";
+		if (x2 == 0) cout << "Pamietaj cholero, nie dziel przez zero!" << endl;
 		else cout << x1 / x2;
 		break;
-	default: cout << "Nieprawidlowy operator";
+	default: cout << "Nieprawidlowy operator" << endl;
 	}
+}
+
+float readFloatWithMessage(char msg[])
+{
+	float x;
+	cout << msg;
+	cin >> x;
+	return x;
+}
+
+char readCharWithMessage(char msg[])
+{
+	char x;
+	cout << msg;
+	cin >> x;
+	return x;
 }
 
 
@@ -145,11 +172,23 @@ wykonuje siê zawsze, jeœli warunek jest prawdziwy (ewaluowany do true). Napisaæ 
 wyœwietliæ tê liczbê. Je¿eli u¿ytkownik poda 0, nale¿y zakoñczyæ program. */
 void zadanie2_1()
 {
-	int x = 1;
-	while (x != 0)
+	int x;  // TODO usunac trik
+	do 
 	{
 		cin >> x;
 		cout << x << endl;
+	} while (x != 0);
+}
+
+void zadanie2_1A()
+{
+	int x;  // TODO usunac trik
+	bool goOn = true;
+	while (goOn)
+	{
+		cin >> x;
+		cout << x << endl;
+		if (x == 0) goOn = false;
 	}
 }
 
@@ -157,28 +196,11 @@ void zadanie2_1()
 wszystko od pocz¹tku. Jeœli tak - restartujemy kalkulator i zaczynamy od nowa. Jeœli nie - koñczymy program. */
 void zadanie2_2()
 {
-	float x1, x2;
-	char op;
 	char goOn = 't';
 
-	while (goOn == 't')
+	while (goOn == 't')  // TODO uzyc funkcji z zadania 1.6.
 	{
-		cout << "Podaj pierwsza liczbe: ";
-		cin >> x1;
-		cout << "Podaj operator: ";
-		cin >> op;
-		cout << "Podaj druga liczbe: ";
-		cin >> x2;
-
-		if (op == '+') cout << x1 + x2 << endl;
-		else if (op == '-') cout << x1 - x2 << endl;
-		else if (op == '*') cout << x1 * x2 << endl;
-		else if (op == '/')
-		{
-			if (x2 == 0) cout << "Pamietaj cholero, nie dziel przez zero!" << endl;
-			else cout << x1 / x2 << endl;
-		}
-		else cout << "Nieprawidlowy operator" << endl;
+		zadanie1_6();
 
 		cout << "Powtorzyc? (t/n) ";
 		cin >> goOn;
@@ -319,3 +341,18 @@ int Multiply(int x, int y)
 //   4. Use the Error List window to view errors
 //   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
 //   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+
+
+
+
+/*
+Visual Code Studio
+printf symbole, mo¿liwe wstawienia, wyswietlanie typow danych (int, float, char, string, date, bool)
+biblioteka do matematyki
+
+jesli starczy czasu poczytac o plikach naglowkowych, wydzielic grupy zadan do osobnych plikow ale wywolywac z jednego pliku
+uruchomic biblioteke openGL w C++; przejsc tutorial z openGL
+poczytac o blender - program do modelowania 3d
+zobaczyc portal: Pasja Informatyki (youtube), Deweloper Wannabe, Hello Roman
+zobaczyc jêzyk programowania Rust
+*/
