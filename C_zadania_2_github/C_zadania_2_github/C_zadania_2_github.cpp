@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <regex>
+#include <tuple>
 using namespace std;
 
 int *zadanie1_1();
@@ -26,9 +27,17 @@ bool isADigit(char);
 bool containsDigitsReg(char *);
 void zadanie3_4();
 
+void zadanie4_1();
+tuple<int*, int> getArrayAndItsSizeFromUser();
+void zadanie4_2();
+bool areArraysIdentical(int *, int, int *, int);
+void zadanie4_4();
+char *reverseString(char *);
+
 int main()
 {
 	//int myArr[] = { 1, 3, 4, 2 };
+	//int myArr2[] = { 1, 3, 4, 3 };
 	
 	//int *myArr2 = zadanie1_1();
 	//zadanie1_2(myArr2, 5);
@@ -52,7 +61,11 @@ int main()
 
 	//cout << containsDigits(str);
 
-	zadanie3_4();
+	//cout << areArraysIdentical(myArr, 4, myArr2, 4);
+
+	//cout << reverseString(str);
+
+	zadanie4_4();
 }
 
 /* 1.1. Utworzyc 5-cio elementowa tablice typu int. Pobrac od uzytkownika 5 elementow i dodac je do tablicy. Nastepnie
@@ -240,14 +253,73 @@ void zadanie3_4()
 
 /* 4.1. Pobrac od uzytkownika liczbe n. Zaalokowac pamiec na n elementow int i pobrac je od uzytkownika. Wykonac na niej
 metode printBackwards z 2.2. */
+void zadanie4_1()
+{
+	tuple<int*, int> t = getArrayAndItsSizeFromUser();
+	int *arr = get<0>(t);
+	int n = get<1>(t);
+
+	printBackwards(arr, n);
+}
+
+tuple<int*, int> getArrayAndItsSizeFromUser()
+{
+	int n;
+	cin >> n;
+
+	int *arr;
+	arr = (int*)malloc(sizeof(int) * n);
+
+	for (int i = 0; i < n; i++)
+	{
+		cin >> arr[i];
+	}
+
+	tuple<int*, int> t = make_tuple(arr, n);
+	return t;
+}
 
 /* 4.2. Pobrac od uzytkownika liczbe n. Zaalokowac pamiec na n elementow int i pobrac je od uzytkownika. Nastepnie zaalokowac
 pamiec i utworzyc tablice, w ktorej beda tylko UJEMNE wartosci z pierwszej tablicy. Na koniec zwolnic pamiec na obie tablice. */
+void zadanie4_2()
+{
+	tuple<int*, int> t = getArrayAndItsSizeFromUser();
+	int *arr = get<0>(t);
+	int n = get<1>(t);
+
+	int count = 0;
+	for (int i = 0; i < n; i++) if (arr[i] < 0) count++;
+
+	int *arr2;
+	arr2 = (int*)malloc(sizeof(int) * count);
+	int j = 0;
+	for (int i = 0; i < n; i++)
+	{
+		if (arr[i] < 0)
+		{
+			arr2[j] = arr[i];
+			j++;
+		}
+	}
+
+	printForward(arr2, j);
+	free(arr);
+	free(arr2);
+}
 
 /* 4.3. Napisac metode bool AreArraysIdentical(int *a1, int s1, int *a2, int s2) zwracajaca informacje, czy dwie tablice podane
 jako parametr sa identyczne, tj. czy maja taka sama dlugosc i czy na kazdym indeksie wystepuje taki sam element. */
+bool areArraysIdentical(int *a1, int s1, int *a2, int s2)
+{
+	if (s1 != s2) return false;
+	for (int i = 0; i < s1; i++)
+	{
+		if (a1[i] != a2[i]) return false;
+	}
+	return true;
+}
 
-/* Napisac metode char *reverseString(char *str), ktora ZWROCI (a nie wypisze!) string, ktory jest odwroconym stringiem przekazanym
+/* 4.4. Napisac metode char *reverseString(char *str), ktora ZWROCI (a nie wypisze!) string, ktory jest odwroconym stringiem przekazanym
 jako pierwszy parametr. Funkcja zaalokuje pamiec na nowy lancuch i go zwroci. Ca³y algorytm nalezy zaimplementowac samodzielnie.
 Nalezy go nastepnie "przechwycic" w funkcji main, aby pamiec na koniec wyczyscic:
 int main()
@@ -258,6 +330,33 @@ int main()
 	free(str);   // zwalniamy pamiec z pierwszej tablicy
 	free(result);   // zwracamy wynik z funkcji, ktory "przechwycil" main()
 } */
+void zadanie4_4()
+{
+	int n;
+	cin >> n;
+	char *str = (char*)malloc(sizeof(char) * n);
+	cin >> str;
+
+	char *result = reverseString(str);
+	cout << result;
+	
+	free(str);
+	free(result);
+}
+
+char *reverseString(char *str)
+{
+	int length = getLength(str);
+	char *str2 = (char*)malloc(sizeof(char) * (length + 1));
+	
+	for (int i = 0; i < length; i++) str2[i] = str[length - 1 - i];
+	str2[length] = '\0';
+
+	return str2;
+}
+
+
+
 
 
 
