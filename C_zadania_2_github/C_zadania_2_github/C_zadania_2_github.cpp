@@ -19,6 +19,7 @@ void printDots(int *, int);
 void printLineOfDots(int);
 int sum(int *, int);
 void Sort(int *, int);
+void mySwap(int *, int, int);
 
 int getLength(char *);
 void reverse(char *);
@@ -50,10 +51,12 @@ int main()
 
 	//cout << sum(myArr, 4);
 
+	//printForward(myArr, 4);
 	//Sort(myArr, 4);
+	//mySwap(myArr, 0, 3);
 	//printForward(myArr, 4);
 
-	//char str[] = "lolek";
+	char str[] = "lolek";
 
 	//cout << getLength(str);
 
@@ -63,9 +66,9 @@ int main()
 
 	//cout << areArraysIdentical(myArr, 4, myArr2, 4);
 
-	//cout << reverseString(str);
+	cout << reverseString(str);
 
-	zadanie4_4();
+	//zadanie4_4();
 }
 
 /* 1.1. Utworzyc 5-cio elementowa tablice typu int. Pobrac od uzytkownika 5 elementow i dodac je do tablicy. Nastepnie
@@ -161,24 +164,28 @@ void Sort(int *a, int s)
 	{
 		for (int i = 0; i < unsorted - 1; i++)
 		{
-			/*if (*(a + i + 1) < *(a + i))
+			if (*(a + i + 1) < *(a + i))
 			{
-				buffer = *(a + i + 1);
-				*(a + i + 1) = *(a + i);
-				*(a + i) = buffer;
-			}*/
-			if (a[i + 1] < a[i])
+				mySwap(a, i, i + 1);
+			}
+			/*if (a[i + 1] < a[i])
 			{
 				buffer = a[i + 1];
 				a[i + 1] = a[i];
 				a[i] = buffer;
-			}
+			}*/
 		}
 		//printForward(a, s);
 		unsorted--;
 	}
 }
 
+void mySwap(int *arr, int i, int j)
+{
+	int buffer = *(arr + j);
+	*(arr + j) = *(arr + i);
+	*(arr + i) = buffer;
+}
 
 
 
@@ -349,7 +356,7 @@ char *reverseString(char *str)
 	int length = getLength(str);
 	char *str2 = (char*)malloc(sizeof(char) * (length + 1));
 	
-	for (int i = 0; i < length; i++) str2[i] = str[length - 1 - i];
+	for (int i = 0, j = length - 1; i < length; i++, j--) str2[i] = str[j];
 	str2[length] = '\0';
 
 	return str2;
